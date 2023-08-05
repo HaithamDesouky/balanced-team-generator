@@ -1,24 +1,36 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View, TextInput, Button, StyleSheet, Alert, Text } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 const PlayerCreator = () => {
   const [name, setName] = useState("");
   const [role, setRole] = useState("DEF");
   const [rating, setRating] = useState("1");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSave = () => {
+    if (!name.trim()) {
+      setErrorMessage("Please enter a name.");
+      return;
+    }
+
     const playersJSON = localStorage.getItem("Players");
 
     const existingPlayers = JSON.parse(playersJSON || "[]") || [];
+
+    console.log({ existingPlayers });
+    // Check if a player with the same name already exists
+    if (existingPlayers.some((player) => player.name === name)) {
+      console.log("im here");
+      setErrorMessage("Player already exists.");
+      return;
+    }
 
     // Create a new player object
     const newPlayer = { name, role, rating };
 
     // Add the new player to the existing array
     const updatedPlayers = [...existingPlayers, newPlayer];
-
-    console.log({ playersJSON, updatedPlayers });
 
     // Update local storage with the updated array
     localStorage.setItem("Players", JSON.stringify(updatedPlayers));
@@ -27,6 +39,7 @@ const PlayerCreator = () => {
     setName("");
     setRole("DEF");
     setRating("1");
+    setErrorMessage("");
   };
 
   const handleCancel = () => {
@@ -35,6 +48,11 @@ const PlayerCreator = () => {
     setRole("DEF");
     setRating("1");
   };
+  const handleNameChange = (text) => {
+    // Clear the error message when the user starts typing
+    setErrorMessage("");
+    setName(text);
+  };
 
   return (
     <View style={styles.container}>
@@ -42,7 +60,7 @@ const PlayerCreator = () => {
         style={styles.input}
         placeholder="Enter a name"
         value={name}
-        onChangeText={(text) => setName(text)}
+        onChangeText={handleNameChange}
       />
       <Picker
         style={styles.input}
@@ -65,6 +83,7 @@ const PlayerCreator = () => {
           />
         ))}
       </Picker>
+      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
       <View style={styles.buttonContainer}>
         <Button title="Save" onPress={handleSave} />
         <Button title="Cancel" onPress={handleCancel} />
@@ -90,6 +109,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-evenly",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
   },
 });
 
