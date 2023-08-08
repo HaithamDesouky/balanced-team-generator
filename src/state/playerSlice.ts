@@ -1,7 +1,6 @@
-import { initialPlayers } from '../mock/mockPlayerList';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { Player } from 'src/helper/types';
 
 // Define a type for the slice state
 interface PlayerState {
