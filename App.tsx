@@ -8,23 +8,18 @@ import * as FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Provider } from 'react-redux';
 
 import { store } from 'src/state/store';
+import useThemePalette from 'src/components/hooks/useThemePalette';
 
 const RootStack = createBottomTabNavigator();
 
-const colorPalette = {
-    primary: '#04f5ff',
-    secondary: '#e90052',
-    surface: '#ffffff',
-    tertiary: '#00ff85',
-    contrast: '#38003c'
-};
-
 export default function App() {
+    const colorPalette = useThemePalette();
+
     return (
         <Provider store={store}>
             <NavigationContainer>
                 <RootStack.Navigator
-                    initialRouteName="ExploreStack"
+                    initialRouteName="Player List"
                     screenOptions={() => ({
                         headerShown: false,
                         tabBarActiveTintColor: colorPalette.contrast,

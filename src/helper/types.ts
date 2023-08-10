@@ -4,3 +4,11 @@ export interface Player {
     level: number;
     position: string;
 }
+
+export interface ColorPalette {
+    primary?: string;
+    secondary?: string;
+    surface?: string;
+    tertiary?: string;
+    contrast?: string;
+}

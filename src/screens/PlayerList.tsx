@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -11,15 +11,19 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import the icon library you are using
 import { Picker } from '@react-native-picker/picker';
 import { useSelector, useDispatch } from 'react-redux';
-import { updatePlayers } from 'src/state/playerSlice';
+import { updateNextGame, updatePlayers } from 'src/state/playerSlice';
 import type { RootState } from 'src/state/store';
-import { Player } from 'src/helper/types';
+import { ColorPalette, Player } from 'src/helper/types';
+import useThemePalette from 'src/components/hooks/useThemePalette';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import * as IoniIcon from 'react-native-vector-icons/Ionicons';
 
 export const PlayerList: React.FC = () => {
-    const { players } = useSelector((state: RootState) => state.players);
+    const { players, nextGame } = useSelector(
+        (state: RootState) => state.players
+    );
     const [modalVisible, setModalVisible] = useState(false);
     const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
     const [editedName, setEditedName] = useState('');
@@ -27,7 +31,21 @@ export const PlayerList: React.FC = () => {
     const [editedPosition, setEditedPosition] = useState('');
     const dispatch = useDispatch();
 
-    console.log({ players });
+    const colorPalette = useThemePalette();
+
+    useEffect(() => {
+        fetchPlayerList();
+    }, []);
+
+    const fetchPlayerList = async () => {
+        try {
+            const playersJSON = await AsyncStorage.getItem('Players');
+            const savedPlayers: Player[] = JSON.parse(playersJSON || '[]');
+            dispatch(updatePlayers(savedPlayers));
+        } catch (error) {
+            console.error('Error fetching player list:', error);
+        }
+    };
 
     const handleEditPlayer = (player: Player) => {
         setEditingPlayer(player);
@@ -77,25 +95,146 @@ export const PlayerList: React.FC = () => {
         }
     };
 
-    const renderPlayer = ({ item }: { item: Player }) => {
-        console.log({ item, help: 'renderrrr' });
+    const getPlayerIcon = (position: string) => {
+        switch (position) {
+            case 'DEF':
+                return 'shield';
+            case 'ATT':
+                return 'rocket-sharp';
+            default:
+                return 'shield';
+        }
+    };
 
+    const handlePlayerParticipation = async (player: Player) => {
+        try {
+            const nextGame = await AsyncStorage.getItem('NextGame');
+            let savedNextGame: Player[] = JSON.parse(nextGame || '[]');
+
+            // Check if the player already exists in the nextGame array
+            const playerIndex = savedNextGame.findIndex(
+                (p) => p.id === player.id
+            );
+
+            if (playerIndex !== -1) {
+                // Player exists, so remove them from the array
+                savedNextGame = savedNextGame.filter((p) => p.id !== player.id);
+            } else {
+                // Player doesn't exist, so add them to the array
+                savedNextGame.push(player);
+            }
+
+            await AsyncStorage.setItem(
+                'NextGame',
+                JSON.stringify(savedNextGame)
+            );
+
+            dispatch(updateNextGame(savedNextGame)); // Dispatch the action to update Redux state
+            console.log({ savedNextGame });
+        } catch (error) {
+            console.error('Error participating player:', error);
+        }
+    };
+
+    const renderPlayer = ({ item }: { item: Player }) => {
         return (
-            <View style={styles.playerContainer}>
-                <Text>{item.name}</Text>
-                <TouchableOpacity onPress={() => handleEditPlayer(item)}>
-                    <Icon name="edit" size={24} color="blue" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDeletePlayer(item.id)}>
-                    <Icon name="delete" size={24} color="red" />
-                </TouchableOpacity>
+            <View style={styles(colorPalette).playerContainer}>
+                <IoniIcon.default
+                    name={getPlayerIcon(item.position)}
+                    size={30}
+                    color={colorPalette.contrast}
+                />
+                <View style={styles(colorPalette).playerDetails}>
+                    <Text
+                        style={{
+                            color: colorPalette.contrast,
+                            fontWeight: 'bold',
+                            fontSize: 18
+                        }}
+                    >
+                        {item.name}
+                    </Text>
+                    <Text style={{ color: colorPalette.contrast }}>
+                        {item.position}
+                    </Text>
+                    <Text style={{ color: colorPalette.contrast }}>
+                        {item.level}
+                    </Text>
+                </View>
+                <View style={styles(colorPalette).buttonContainer}>
+                    <TouchableOpacity
+                        onPress={() => handlePlayerParticipation(item)}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <IoniIcon.default
+                            name={
+                                nextGame?.some((plyr) => plyr.id === item.id)
+                                    ? 'checkmark-circle-sharp'
+                                    : 'radio-button-off'
+                            }
+                            size={24}
+                            color={
+                                nextGame?.some((plyr) => plyr.id === item.id)
+                                    ? colorPalette.tertiary
+                                    : colorPalette.contrast
+                            }
+                            style={{ margin: 'auto' }}
+                        />
+
+                        <Text>Playing</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => handleEditPlayer(item)}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <IoniIcon.default
+                            name="pencil"
+                            size={24}
+                            color={colorPalette.contrast}
+                            style={{ margin: 'auto' }}
+                        />
+                        <Text>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}
+                        onPress={() => handleDeletePlayer(item.id)}
+                    >
+                        <IoniIcon.default
+                            name="trash-sharp"
+                            size={24}
+                            color={colorPalette.contrast}
+                        />
+                        <Text>Delete</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     };
 
     return (
-        <SafeAreaView>
-            <Text>flat list below</Text>
+        <SafeAreaView style={styles(colorPalette).mainContainer}>
+            <Text style={styles(colorPalette).pageTitle}>
+                <Fontisto
+                    name="persons"
+                    size={20}
+                    style={{ paddingRight: 20 }}
+                    // color={colorPalette.contrast}
+                />
+                {'   '}Player List
+            </Text>
             <FlatList data={players} renderItem={renderPlayer} />
             {/* Edit Player Modal */}
             <Modal
@@ -103,16 +242,16 @@ export const PlayerList: React.FC = () => {
                 transparent={true}
                 visible={modalVisible}
             >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
+                <View style={styles(colorPalette).modalContainer}>
+                    <View style={styles(colorPalette).modalContent}>
                         <TextInput
-                            style={styles.input}
+                            style={styles(colorPalette).input}
                             placeholder="Name"
                             value={editedName}
                             onChangeText={setEditedName}
                         />
                         <Picker
-                            style={styles.input}
+                            style={styles(colorPalette).input}
                             selectedValue={editedLevel}
                             onValueChange={setEditedLevel}
                         >
@@ -125,14 +264,14 @@ export const PlayerList: React.FC = () => {
                             ))}
                         </Picker>
                         <Picker
-                            style={styles.input}
+                            style={styles(colorPalette).input}
                             selectedValue={editedPosition}
                             onValueChange={setEditedPosition}
                         >
                             <Picker.Item label="DEF" value="DEF" />
                             <Picker.Item label="ATT" value="ATT" />
                         </Picker>
-                        <View style={styles.modalButtons}>
+                        <View style={styles(colorPalette).modalButtons}>
                             <Pressable onPress={handleSaveEdit}>
                                 <Text>Save</Text>
                             </Pressable>
@@ -147,39 +286,73 @@ export const PlayerList: React.FC = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    playerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderColor: 'gray'
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)'
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        width: '80%'
-    },
-    input: {
-        marginBottom: 10,
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 4
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        marginTop: 20
-    }
-});
+const styles = (colorPalette: ColorPalette) =>
+    StyleSheet.create({
+        mainContainer: {
+            backgroundColor: colorPalette.contrast,
+            height: '100%'
+        },
+        pageTitle: {
+            backgroundColor: colorPalette.contrast,
+            color: colorPalette.surface,
+            fontSize: 18,
+            paddingTop: 5,
+            paddingLeft: 10,
+            paddingBottom: 5,
+            marginBottom: 15,
+            fontWeight: 'bold'
+        },
+        playerContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            // justifyContent: 'space-between',
+            paddingHorizontal: 10,
+            paddingVertical: 8,
+            borderBottomWidth: 1,
+            borderColor: 'gray',
+            backgroundColor: colorPalette.surface,
+            minHeight: 60,
+            width: '100%'
+        },
+        playerDetails: {
+            display: 'flex',
+            flexDirection: 'column',
+            marginLeft: 16
+        },
+        buttonContainer: {
+            margin: 'auto',
+            marginLeft: 'auto',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            //backgroundColor: 'yellow',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '50%'
+        },
+        modalContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+        },
+        modalContent: {
+            backgroundColor: 'white',
+            padding: 20,
+            borderRadius: 10,
+            width: '80%'
+        },
+        input: {
+            marginBottom: 10,
+            paddingVertical: 5,
+            paddingHorizontal: 10,
+            borderWidth: 1,
+            borderColor: 'gray',
+            borderRadius: 4
+        },
+        modalButtons: {
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            marginTop: 20
+        }
+    });

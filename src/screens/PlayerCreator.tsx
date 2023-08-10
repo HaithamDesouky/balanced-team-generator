@@ -18,8 +18,8 @@ import { Player } from 'src/helper/types';
 
 const PlayerCreator = () => {
     const [name, setName] = useState('');
-    const [role, setRole] = useState('DEF');
-    const [rating, setRating] = useState('1');
+    const [position, setPosition] = useState('DEF');
+    const [level, setLevel] = useState('1');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [textFocused, setTextFocused] = useState(false);
@@ -27,21 +27,6 @@ const PlayerCreator = () => {
     const localInputRef = useRef<TextInput>();
 
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        console.log('fetching');
-        fetchPlayerList();
-    }, []);
-
-    const fetchPlayerList = async () => {
-        try {
-            const playersJSON = await AsyncStorage.getItem('Players');
-            const savedPlayers: Player[] = JSON.parse(playersJSON || '[]');
-            dispatch(updatePlayers(savedPlayers));
-        } catch (error) {
-            console.error('Error fetching player list:', error);
-        }
-    };
 
     const keyboardDidHideCallback = () => {
         localInputRef?.current?.blur?.();
@@ -77,7 +62,7 @@ const PlayerCreator = () => {
             }
 
             // Create a new player object
-            const newPlayer = { name, role, rating, id: uuid.v4() };
+            const newPlayer = { name, position, level, id: uuid.v4() };
 
             // Add the new player to the existing array
             const updatedPlayers = [...existingPlayers, newPlayer];
@@ -91,8 +76,8 @@ const PlayerCreator = () => {
 
             // Clear the form fields
             setName('');
-            setRole('DEF');
-            setRating('1');
+            setPosition('DEF');
+            setLevel('1');
             setErrorMessage('');
             setSuccessMessage(`${name} has been added to the list`);
         } catch (error) {
@@ -102,16 +87,16 @@ const PlayerCreator = () => {
 
         // Clear the form fields
         setName('');
-        setRole('DEF');
-        setRating('1');
+        setPosition('DEF');
+        setLevel('1');
         setErrorMessage('');
     };
 
     const handleCancel = () => {
         // You can perform any cancel actions here
         setName('');
-        setRole('DEF');
-        setRating('1');
+        setPosition('DEF');
+        setLevel('1');
     };
     const handleNameChange = (text: string) => {
         // Clear the error message when the user starts typing
@@ -152,13 +137,13 @@ const PlayerCreator = () => {
                             <Text>Position</Text>
                             <Picker
                                 style={styles.input}
-                                selectedValue={role}
+                                selectedValue={position}
                                 onFocus={() => {
                                     setTextFocused(false);
                                     localInputRef?.current?.blur();
                                 }}
                                 onValueChange={(itemValue) =>
-                                    setRole(itemValue)
+                                    setPosition(itemValue)
                                 }
                             >
                                 <Picker.Item label="DEF" value="DEF" />
@@ -167,9 +152,9 @@ const PlayerCreator = () => {
                             <Text>{'Level (from 1-10)'}</Text>
                             <Picker
                                 style={styles.input}
-                                selectedValue={rating}
+                                selectedValue={level}
                                 onValueChange={(itemValue) =>
-                                    setRating(itemValue)
+                                    setLevel(itemValue)
                                 }
                                 onFocus={() => {
                                     setTextFocused(false);
