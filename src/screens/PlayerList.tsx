@@ -42,6 +42,10 @@ export const PlayerList: React.FC = () => {
             const playersJSON = await AsyncStorage.getItem('Players');
             const savedPlayers: Player[] = JSON.parse(playersJSON || '[]');
             dispatch(updatePlayers(savedPlayers));
+
+            const nextGame = await AsyncStorage.getItem('NextGame');
+            const savedNextGame: Player[] = JSON.parse(nextGame || '[]');
+            dispatch(updateNextGame(savedNextGame));
         } catch (error) {
             console.error('Error fetching player list:', error);
         }
@@ -272,11 +276,41 @@ export const PlayerList: React.FC = () => {
                             <Picker.Item label="ATT" value="ATT" />
                         </Picker>
                         <View style={styles(colorPalette).modalButtons}>
-                            <Pressable onPress={handleSaveEdit}>
-                                <Text>Save</Text>
+                            <Pressable
+                                onPress={handleSaveEdit}
+                                style={{
+                                    backgroundColor: colorPalette.tertiary,
+                                    width: '46%',
+                                    borderRadius: 2,
+                                    padding: 10
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        textAlign: 'center',
+                                        color: colorPalette.surface
+                                    }}
+                                >
+                                    Save
+                                </Text>
                             </Pressable>
-                            <Pressable onPress={handleCancelEdit}>
-                                <Text>Cancel</Text>
+                            <Pressable
+                                onPress={handleCancelEdit}
+                                style={{
+                                    backgroundColor: colorPalette.contrast,
+                                    width: '46%',
+                                    borderRadius: 2,
+                                    padding: 10
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        textAlign: 'center',
+                                        color: colorPalette.surface
+                                    }}
+                                >
+                                    Cancel
+                                </Text>
                             </Pressable>
                         </View>
                     </View>

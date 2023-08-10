@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TouchableWithoutFeedback } from 'react-native';
+import { TouchableWithoutFeedback, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import uuid from 'react-native-uuid';
 import { useDispatch } from 'react-redux';
 import { updatePlayers } from 'src/state/playerSlice';
-import { Player } from 'src/helper/types';
+import { ColorPalette, Player } from 'src/helper/types';
+import useThemePalette from 'src/components/hooks/useThemePalette';
+import { Dimensions } from 'react-native';
 
 const PlayerCreator = () => {
     const [name, setName] = useState('');
@@ -23,6 +25,9 @@ const PlayerCreator = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [textFocused, setTextFocused] = useState(false);
+
+    const colorPalette = useThemePalette();
+    const deviceWidth = Dimensions.get('window').width;
 
     const localInputRef = useRef<TextInput>();
 
@@ -106,10 +111,60 @@ const PlayerCreator = () => {
     };
 
     return (
-        <SafeAreaView style={styles.mainContainer}>
-            <View style={styles.container}>
+        <SafeAreaView style={styles(colorPalette).mainContainer}>
+            <View
+                style={{
+                    backgroundColor: colorPalette.contrast,
+                    height: '10%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
+            >
+                <Text
+                    style={{
+                        color: colorPalette.surface,
+                        textAlign: 'center',
+                        fontSize: 20,
+                        fontWeight: 'bold'
+                        //  fontFamily: 'sans serif'
+                    }}
+                >
+                    Create A Player
+                </Text>
+            </View>
+            <View style={styles(colorPalette).container}>
+                <View
+                    style={{
+                        height: deviceWidth * 0.4,
+                        width: deviceWidth * 0.4,
+                        marginTop: '5%',
+                        marginBottom: '10%',
+                        marginLeft: 'auto',
+                        marginRight: 'auto'
+                    }}
+                >
+                    <Image
+                        style={{
+                            width: null,
+                            height: null,
+                            flex: 1
+                        }}
+                        source={require('./../../assets/free-agent-icon.png')}
+                    />
+                </View>
+
                 <View>
-                    <Text>Name</Text>
+                    <Text
+                        style={{
+                            color: colorPalette.contrast,
+                            fontWeight: 'bold',
+                            fontSize: 16,
+                            marginBottom: 5
+                        }}
+                    >
+                        Name
+                    </Text>
                     <TextInput
                         ref={(ref) => {
                             localInputRef &&
@@ -117,8 +172,13 @@ const PlayerCreator = () => {
                                     (ref as TextInput) || null);
                         }}
                         style={{
-                            ...styles.input,
-                            borderColor: textFocused ? 'red' : 'blue'
+                            ...styles(colorPalette).input,
+                            borderColor: textFocused
+                                ? colorPalette.tertiary
+                                : colorPalette.contrast,
+                            backgroundColor: textFocused
+                                ? colorPalette.surface
+                                : colorPalette.inputInactive
                         }}
                         placeholder="Enter a name"
                         value={name}
@@ -134,9 +194,18 @@ const PlayerCreator = () => {
                         }}
                     >
                         <>
-                            <Text>Position</Text>
+                            <Text
+                                style={{
+                                    color: colorPalette.contrast,
+                                    fontWeight: 'bold',
+                                    fontSize: 16,
+                                    marginBottom: 5
+                                }}
+                            >
+                                Position
+                            </Text>
                             <Picker
-                                style={styles.input}
+                                style={styles(colorPalette).input}
                                 selectedValue={position}
                                 onFocus={() => {
                                     setTextFocused(false);
@@ -149,9 +218,18 @@ const PlayerCreator = () => {
                                 <Picker.Item label="DEF" value="DEF" />
                                 <Picker.Item label="ATT" value="ATT" />
                             </Picker>
-                            <Text>{'Level (from 1-10)'}</Text>
+                            <Text
+                                style={{
+                                    color: colorPalette.contrast,
+                                    fontWeight: 'bold',
+                                    fontSize: 16,
+                                    marginBottom: 5
+                                }}
+                            >
+                                {'Level (from 1-10)'}
+                            </Text>
                             <Picker
-                                style={styles.input}
+                                style={styles(colorPalette).input}
                                 selectedValue={level}
                                 onValueChange={(itemValue) =>
                                     setLevel(itemValue)
@@ -174,20 +252,52 @@ const PlayerCreator = () => {
                 </View>
                 <>
                     {errorMessage && (
-                        <Text style={styles.errorText}>{errorMessage}</Text>
+                        <Text style={styles(colorPalette).errorText}>
+                            {errorMessage}
+                        </Text>
                     )}
                     {successMessage && (
-                        <Text style={styles.successMessage}>
+                        <Text style={styles(colorPalette).successMessage}>
                             {successMessage}
                         </Text>
                     )}
                 </>
-                <View style={styles.buttonContainer}>
-                    <Pressable onPress={handleSave}>
-                        <Text>Save</Text>
+                <View style={styles(colorPalette).buttonContainer}>
+                    <Pressable
+                        onPress={handleSave}
+                        style={{
+                            backgroundColor: colorPalette.tertiary,
+                            width: '46%',
+                            borderRadius: 6,
+                            padding: 10
+                        }}
+                    >
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                color: colorPalette.surface
+                            }}
+                        >
+                            Save
+                        </Text>
                     </Pressable>
-                    <Pressable onPress={handleCancel}>
-                        <Text>Cancel</Text>
+                    <Pressable
+                        onPress={handleCancel}
+                        style={{
+                            backgroundColor: colorPalette.contrast,
+                            width: '46%',
+                            borderRadius: 6,
+                            padding: 10
+                        }}
+                    >
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                color: colorPalette.surface
+                            }}
+                        >
+                            Cancel
+                        </Text>
                     </Pressable>
                 </View>
             </View>
@@ -195,39 +305,40 @@ const PlayerCreator = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    mainContainer: {
-        height: '100%'
-    },
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        height: '100%',
-        paddingHorizontal: 10
-    },
-    input: {
-        borderTopWidth: 0,
-        borderLeftWidth: 0,
-        borderRightWidth: 0,
-        marginBottom: 10,
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        borderWidth: 1,
-        borderRadius: 4
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-evenly'
-    },
-    errorText: {
-        color: 'red',
-        marginBottom: 10
-    },
-    successMessage: {
-        color: 'green',
-        marginBottom: 10
-    }
-});
+const styles = (colorPalette: ColorPalette) =>
+    StyleSheet.create({
+        mainContainer: {
+            height: '100%'
+        },
+        container: {
+            flex: 1,
+            height: '100%',
+            paddingHorizontal: 10
+        },
+        input: {
+            borderTopWidth: 0,
+            borderLeftWidth: 0,
+            borderRightWidth: 0,
+            marginBottom: 10,
+            paddingVertical: 5,
+            paddingHorizontal: 10,
+            borderWidth: 1,
+            borderRadius: 4,
+            backgroundColor: colorPalette.inputInactive
+        },
+        buttonContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            marginTop: 30
+        },
+        errorText: {
+            color: 'red',
+            marginBottom: 10
+        },
+        successMessage: {
+            color: 'green',
+            marginBottom: 10
+        }
+    });
 
 export { PlayerCreator };

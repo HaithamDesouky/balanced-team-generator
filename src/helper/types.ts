@@ -6,9 +6,10 @@ export interface Player {
 }
 
 export interface ColorPalette {
-    primary?: string;
-    secondary?: string;
-    surface?: string;
-    tertiary?: string;
-    contrast?: string;
+    primary: string;
+    secondary: string;
+    surface: string;
+    tertiary: string;
+    contrast: string;
+    inputInactive: string;
 }
