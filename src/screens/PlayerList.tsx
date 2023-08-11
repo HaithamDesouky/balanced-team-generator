@@ -42,93 +42,92 @@ export const PlayerList: React.FC = () => {
             {
                 id: '2323f23',
                 name: 'Arran',
-                skillLevel: 8,
+                skillLevel: 7,
                 position: 'DEF',
-                fitnessLevel: 5
+                fitnessLevel: 3
             },
             {
                 id: '23112d2323',
                 name: 'Lemuel',
-                skillLevel: 5,
+                skillLevel: 4,
                 position: 'DEF',
-                fitnessLevel: 1
+                fitnessLevel: 2
             },
             {
                 id: '2343243244323',
                 name: 'Yvan',
-                skillLevel: 5,
+                skillLevel: 6,
                 position: 'DEF',
-                fitnessLevel: 1
+                fitnessLevel: 5
             },
             {
                 id: '2343232w4232323',
                 name: 'Andres',
-                skillLevel: 9,
+                skillLevel: 8,
                 position: 'ATT',
-                fitnessLevel: 1
+                fitnessLevel: 4
             },
             {
                 id: '23sadas555dsa2323',
                 name: 'Miklos',
-                skillLevel: 1,
+                skillLevel: 2,
                 position: 'DEF',
-                fitnessLevel: 1
+                fitnessLevel: 6
             },
             {
                 id: '23232s55adfsadas3',
                 name: 'Fernando',
-                skillLevel: 7,
+                skillLevel: 6,
                 position: 'ATT',
-                fitnessLevel: 5
+                fitnessLevel: 2
             },
             {
                 id: '232wrwfew55f323',
                 name: 'Haitham',
-                skillLevel: 8,
+                skillLevel: 9,
                 position: 'ATT',
-                fitnessLevel: 1
+                fitnessLevel: 7
             },
             {
                 id: '232322423444233',
                 name: 'Chris',
-                skillLevel: 3,
+                skillLevel: 4,
                 position: 'DEF',
-                fitnessLevel: 5
+                fitnessLevel: 8
             },
             {
                 id: 'sadasdsad33sada',
                 name: 'Luis',
                 skillLevel: 9,
                 position: 'ATT',
-                fitnessLevel: 4
+                fitnessLevel: 6
             },
             {
                 id: '232sasad22sa323',
                 name: 'Sol',
-                skillLevel: 1,
+                skillLevel: 3,
                 position: 'ATT',
                 fitnessLevel: 9
             },
             {
                 id: '2323wq22113',
                 name: 'Rafa',
-                skillLevel: 5,
+                skillLevel: 7,
                 position: 'DEF',
-                fitnessLevel: 3
+                fitnessLevel: 5
             },
             {
                 id: '232qeqedssddd323',
                 name: 'Willy',
-                skillLevel: 3,
+                skillLevel: 2,
                 position: 'DEF',
                 fitnessLevel: 4
             }
         ];
-
         await AsyncStorage.setItem('Players', JSON.stringify(mock));
     };
     useEffect(() => {
-        //  setPlayerMock();
+        //setPlayerMock();
         fetchPlayerList();
     }, []);
 
