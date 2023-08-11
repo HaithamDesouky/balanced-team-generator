@@ -38,6 +38,13 @@ const PlayerCreator = () => {
     };
 
     useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => setSuccessMessage(''), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
+
+    useEffect(() => {
         const keyboardDidHideSubscription = Keyboard.addListener(
             'keyboardDidHide',
             keyboardDidHideCallback
@@ -275,7 +282,7 @@ const PlayerCreator = () => {
                         <Text
                             style={{
                                 textAlign: 'center',
-                                color: colorPalette.surface
+                                color: colorPalette.contrast
                             }}
                         >
                             Save
@@ -336,8 +343,12 @@ const styles = (colorPalette: ColorPalette) =>
             marginBottom: 10
         },
         successMessage: {
-            color: 'green',
-            marginBottom: 10
+            backgroundColor: colorPalette.contrast,
+            color: colorPalette.tertiary,
+            width: 'auto',
+            padding: 5,
+            borderRadius: 2,
+            textAlign: 'center'
         }
     });
 

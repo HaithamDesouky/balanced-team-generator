@@ -29,6 +29,8 @@ export const PlayerList: React.FC = () => {
     const [editedName, setEditedName] = useState('');
     const [editedLevel, setEditedLevel] = useState(1);
     const [editedPosition, setEditedPosition] = useState('');
+    const [deletePlayer, setDeletePlayer] = useState<Player | null>(null);
+
     const dispatch = useDispatch();
 
     const colorPalette = useThemePalette();
@@ -84,6 +86,10 @@ export const PlayerList: React.FC = () => {
         setModalVisible(false);
     };
 
+    const handleDeletePlayerModal = (player: Player) => {
+        setDeletePlayer(player);
+    };
+
     const handleDeletePlayer = async (playerId: string) => {
         try {
             const updatedPlayers = players.filter(
@@ -94,6 +100,8 @@ export const PlayerList: React.FC = () => {
                 JSON.stringify(updatedPlayers)
             );
             dispatch(updatePlayers(updatedPlayers));
+            setDeletePlayer(null);
+            setModalVisible(false);
         } catch (error) {
             console.error('Error deleting player:', error);
         }
@@ -138,6 +146,150 @@ export const PlayerList: React.FC = () => {
         } catch (error) {
             console.error('Error participating player:', error);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setDeletePlayer(null);
+        setModalVisible(false);
+    };
+
+    const deletePlayerModal = () => {
+        if (!deletePlayer) return;
+        return (
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={!!deletePlayer}
+            >
+                <View style={styles(colorPalette).modalContainer}>
+                    <View style={styles(colorPalette).modalContent}>
+                        <Text style={{ color: colorPalette.contrast }}>
+                            {`Are you sure you want to delete ${deletePlayer.name}?`}
+                        </Text>
+                        <View style={styles(colorPalette).modalButtons}>
+                            <Pressable
+                                onPress={() =>
+                                    handleDeletePlayer(deletePlayer.id)
+                                }
+                                style={{
+                                    backgroundColor: colorPalette.tertiary,
+                                    width: '46%',
+                                    borderRadius: 2,
+                                    padding: 10
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        textAlign: 'center',
+                                        color: colorPalette.contrast
+                                    }}
+                                >
+                                    Delete
+                                </Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={handleCancelDelete}
+                                style={{
+                                    backgroundColor: colorPalette.contrast,
+                                    width: '46%',
+                                    borderRadius: 2,
+                                    padding: 10
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        textAlign: 'center',
+                                        color: colorPalette.surface
+                                    }}
+                                >
+                                    Cancel
+                                </Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        );
+    };
+
+    const editPlayerModal = () => {
+        return (
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+            >
+                <View style={styles(colorPalette).modalContainer}>
+                    <View style={styles(colorPalette).modalContent}>
+                        <TextInput
+                            style={styles(colorPalette).input}
+                            placeholder="Name"
+                            value={editedName}
+                            onChangeText={setEditedName}
+                        />
+                        <Picker
+                            style={styles(colorPalette).input}
+                            selectedValue={editedLevel}
+                            onValueChange={setEditedLevel}
+                        >
+                            {Array.from({ length: 10 }, (_, index) => (
+                                <Picker.Item
+                                    key={index}
+                                    label={String(index + 1)}
+                                    value={index + 1}
+                                />
+                            ))}
+                        </Picker>
+                        <Picker
+                            style={styles(colorPalette).input}
+                            selectedValue={editedPosition}
+                            onValueChange={setEditedPosition}
+                        >
+                            <Picker.Item label="DEF" value="DEF" />
+                            <Picker.Item label="ATT" value="ATT" />
+                        </Picker>
+                        <View style={styles(colorPalette).modalButtons}>
+                            <Pressable
+                                onPress={handleSaveEdit}
+                                style={{
+                                    backgroundColor: colorPalette.tertiary,
+                                    width: '46%',
+                                    borderRadius: 2,
+                                    padding: 10
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        textAlign: 'center',
+                                        color: colorPalette.contrast
+                                    }}
+                                >
+                                    Save
+                                </Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={handleCancelEdit}
+                                style={{
+                                    backgroundColor: colorPalette.contrast,
+                                    width: '46%',
+                                    borderRadius: 2,
+                                    padding: 10
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        textAlign: 'center',
+                                        color: colorPalette.surface
+                                    }}
+                                >
+                                    Cancel
+                                </Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        );
     };
 
     const renderPlayer = ({ item }: { item: Player }) => {
@@ -214,7 +366,7 @@ export const PlayerList: React.FC = () => {
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}
-                        onPress={() => handleDeletePlayer(item.id)}
+                        onPress={() => handleDeletePlayerModal(item)}
                     >
                         <IoniIcon.default
                             name="trash-sharp"
@@ -240,82 +392,10 @@ export const PlayerList: React.FC = () => {
                 {'   '}Player List
             </Text>
             <FlatList data={players} renderItem={renderPlayer} />
-            {/* Edit Player Modal */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-            >
-                <View style={styles(colorPalette).modalContainer}>
-                    <View style={styles(colorPalette).modalContent}>
-                        <TextInput
-                            style={styles(colorPalette).input}
-                            placeholder="Name"
-                            value={editedName}
-                            onChangeText={setEditedName}
-                        />
-                        <Picker
-                            style={styles(colorPalette).input}
-                            selectedValue={editedLevel}
-                            onValueChange={setEditedLevel}
-                        >
-                            {Array.from({ length: 10 }, (_, index) => (
-                                <Picker.Item
-                                    key={index}
-                                    label={String(index + 1)}
-                                    value={index + 1}
-                                />
-                            ))}
-                        </Picker>
-                        <Picker
-                            style={styles(colorPalette).input}
-                            selectedValue={editedPosition}
-                            onValueChange={setEditedPosition}
-                        >
-                            <Picker.Item label="DEF" value="DEF" />
-                            <Picker.Item label="ATT" value="ATT" />
-                        </Picker>
-                        <View style={styles(colorPalette).modalButtons}>
-                            <Pressable
-                                onPress={handleSaveEdit}
-                                style={{
-                                    backgroundColor: colorPalette.tertiary,
-                                    width: '46%',
-                                    borderRadius: 2,
-                                    padding: 10
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        textAlign: 'center',
-                                        color: colorPalette.surface
-                                    }}
-                                >
-                                    Save
-                                </Text>
-                            </Pressable>
-                            <Pressable
-                                onPress={handleCancelEdit}
-                                style={{
-                                    backgroundColor: colorPalette.contrast,
-                                    width: '46%',
-                                    borderRadius: 2,
-                                    padding: 10
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        textAlign: 'center',
-                                        color: colorPalette.surface
-                                    }}
-                                >
-                                    Cancel
-                                </Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+
+            {deletePlayerModal()}
+
+            {editPlayerModal()}
         </SafeAreaView>
     );
 };
