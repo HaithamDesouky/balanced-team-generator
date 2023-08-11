@@ -1,8 +1,9 @@
 export interface Player {
     id: string;
     name: string;
-    level: number;
+    skillLevel: number;
     position: string;
+    fitnessLevel: number;
 }
 
 export interface ColorPalette {

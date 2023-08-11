@@ -21,7 +21,9 @@ import { Dimensions } from 'react-native';
 const PlayerCreator = () => {
     const [name, setName] = useState('');
     const [position, setPosition] = useState('DEF');
-    const [level, setLevel] = useState('1');
+    const [skillLevel, setSkillLevel] = useState(1);
+    const [fitnessLevel, setFitnessLevel] = useState(1);
+
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [textFocused, setTextFocused] = useState(false);
@@ -74,7 +76,13 @@ const PlayerCreator = () => {
             }
 
             // Create a new player object
-            const newPlayer = { name, position, level, id: uuid.v4() };
+            const newPlayer = {
+                name,
+                position,
+                skillLevel,
+                fitnessLevel,
+                id: uuid.v4()
+            };
 
             // Add the new player to the existing array
             const updatedPlayers = [...existingPlayers, newPlayer];
@@ -89,7 +97,8 @@ const PlayerCreator = () => {
             // Clear the form fields
             setName('');
             setPosition('DEF');
-            setLevel('1');
+            setSkillLevel(1);
+            setFitnessLevel(1);
             setErrorMessage('');
             setSuccessMessage(`${name} has been added to the list`);
         } catch (error) {
@@ -100,7 +109,8 @@ const PlayerCreator = () => {
         // Clear the form fields
         setName('');
         setPosition('DEF');
-        setLevel('1');
+        setSkillLevel(1);
+        setFitnessLevel(1);
         setErrorMessage('');
     };
 
@@ -108,7 +118,8 @@ const PlayerCreator = () => {
         // You can perform any cancel actions here
         setName('');
         setPosition('DEF');
-        setLevel('1');
+        setSkillLevel(1);
+        setFitnessLevel(1);
     };
     const handleNameChange = (text: string) => {
         // Clear the error message when the user starts typing
@@ -143,10 +154,10 @@ const PlayerCreator = () => {
             <View style={styles(colorPalette).container}>
                 <View
                     style={{
-                        height: deviceWidth * 0.4,
-                        width: deviceWidth * 0.4,
+                        height: deviceWidth * 0.3,
+                        width: deviceWidth * 0.3,
                         marginTop: '5%',
-                        marginBottom: '10%',
+                        marginBottom: '5%',
                         marginLeft: 'auto',
                         marginRight: 'auto'
                     }}
@@ -233,13 +244,13 @@ const PlayerCreator = () => {
                                     marginBottom: 5
                                 }}
                             >
-                                {'Level (from 1-10)'}
+                                {'Skill Level (from 1-10)'}
                             </Text>
                             <Picker
                                 style={styles(colorPalette).input}
-                                selectedValue={level}
+                                selectedValue={skillLevel}
                                 onValueChange={(itemValue) =>
-                                    setLevel(itemValue)
+                                    setSkillLevel(itemValue)
                                 }
                                 onFocus={() => {
                                     setTextFocused(false);
@@ -250,7 +261,36 @@ const PlayerCreator = () => {
                                     <Picker.Item
                                         key={index}
                                         label={String(index + 1)}
-                                        value={String(index + 1)}
+                                        value={index + 1}
+                                    />
+                                ))}
+                            </Picker>
+                            <Text
+                                style={{
+                                    color: colorPalette.contrast,
+                                    fontWeight: 'bold',
+                                    fontSize: 16,
+                                    marginBottom: 5
+                                }}
+                            >
+                                {'Fitness Level (from 1-10)'}
+                            </Text>
+                            <Picker
+                                style={styles(colorPalette).input}
+                                selectedValue={fitnessLevel}
+                                onValueChange={(itemValue) =>
+                                    setFitnessLevel(itemValue)
+                                }
+                                onFocus={() => {
+                                    setTextFocused(false);
+                                    localInputRef?.current?.blur();
+                                }}
+                            >
+                                {Array.from({ length: 10 }, (_, index) => (
+                                    <Picker.Item
+                                        key={index}
+                                        label={String(index + 1)}
+                                        value={index + 1}
                                     />
                                 ))}
                             </Picker>
@@ -336,7 +376,7 @@ const styles = (colorPalette: ColorPalette) =>
         buttonContainer: {
             flexDirection: 'row',
             justifyContent: 'space-evenly',
-            marginTop: 30
+            marginTop: 16
         },
         errorText: {
             color: 'red',

@@ -19,6 +19,7 @@ import { ColorPalette, Player } from 'src/helper/types';
 import useThemePalette from 'src/components/hooks/useThemePalette';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import * as IoniIcon from 'react-native-vector-icons/Ionicons';
+import * as FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 export const PlayerList: React.FC = () => {
     const { players, nextGame } = useSelector(
@@ -27,7 +28,8 @@ export const PlayerList: React.FC = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
     const [editedName, setEditedName] = useState('');
-    const [editedLevel, setEditedLevel] = useState(1);
+    const [editedSkillLevel, setEditedSkillLevel] = useState(1);
+    const [editedFitnessLevel, setEditedFitnessLevel] = useState(1);
     const [editedPosition, setEditedPosition] = useState('');
     const [deletePlayer, setDeletePlayer] = useState<Player | null>(null);
 
@@ -35,7 +37,98 @@ export const PlayerList: React.FC = () => {
 
     const colorPalette = useThemePalette();
 
+    const setPlayerMock = async () => {
+        const mock = [
+            {
+                id: '2323f23',
+                name: 'Arran',
+                skillLevel: 8,
+                position: 'DEF',
+                fitnessLevel: 5
+            },
+            {
+                id: '23112d2323',
+                name: 'Lemuel',
+                skillLevel: 5,
+                position: 'DEF',
+                fitnessLevel: 1
+            },
+            {
+                id: '2343243244323',
+                name: 'Yvan',
+                skillLevel: 5,
+                position: 'DEF',
+                fitnessLevel: 1
+            },
+            {
+                id: '2343232w4232323',
+                name: 'Andres',
+                skillLevel: 9,
+                position: 'ATT',
+                fitnessLevel: 1
+            },
+            {
+                id: '23sadas555dsa2323',
+                name: 'Miklos',
+                skillLevel: 1,
+                position: 'DEF',
+                fitnessLevel: 1
+            },
+            {
+                id: '23232s55adfsadas3',
+                name: 'Fernando',
+                skillLevel: 7,
+                position: 'ATT',
+                fitnessLevel: 5
+            },
+            {
+                id: '232wrwfew55f323',
+                name: 'Haitham',
+                skillLevel: 8,
+                position: 'ATT',
+                fitnessLevel: 1
+            },
+            {
+                id: '232322423444233',
+                name: 'Chris',
+                skillLevel: 3,
+                position: 'DEF',
+                fitnessLevel: 5
+            },
+            {
+                id: 'sadasdsad33sada',
+                name: 'Luis',
+                skillLevel: 9,
+                position: 'ATT',
+                fitnessLevel: 4
+            },
+            {
+                id: '232sasad22sa323',
+                name: 'Sol',
+                skillLevel: 1,
+                position: 'ATT',
+                fitnessLevel: 9
+            },
+            {
+                id: '2323wq22113',
+                name: 'Rafa',
+                skillLevel: 5,
+                position: 'DEF',
+                fitnessLevel: 3
+            },
+            {
+                id: '232qeqedssddd323',
+                name: 'Willy',
+                skillLevel: 3,
+                position: 'DEF',
+                fitnessLevel: 4
+            }
+        ];
+
+        await AsyncStorage.setItem('Players', JSON.stringify(mock));
+    };
     useEffect(() => {
+        //  setPlayerMock();
         fetchPlayerList();
     }, []);
 
@@ -56,7 +149,8 @@ export const PlayerList: React.FC = () => {
     const handleEditPlayer = (player: Player) => {
         setEditingPlayer(player);
         setEditedName(player.name);
-        setEditedLevel(player.level);
+        setEditedSkillLevel(player.skillLevel);
+        setEditedFitnessLevel(player.fitnessLevel);
         setEditedPosition(player.position);
         setModalVisible(true);
     };
@@ -68,8 +162,9 @@ export const PlayerList: React.FC = () => {
                     ? {
                           ...player,
                           name: editedName,
-                          level: editedLevel,
-                          position: editedPosition
+                          skillLevel: editedSkillLevel,
+                          position: editedPosition,
+                          fitnessLevel: editedFitnessLevel
                       }
                     : player
             );
@@ -92,6 +187,23 @@ export const PlayerList: React.FC = () => {
 
     const handleDeletePlayer = async (playerId: string) => {
         try {
+            // Check if the player to be deleted is in the nextGame array
+            const playerToDeleteInNextGame = players.find(
+                (player: Player) => player.id === playerId
+            );
+            if (playerToDeleteInNextGame) {
+                // Remove the player from the nextGame array in Redux
+                const updatedNextGame = nextGame.filter(
+                    (player: Player) => player.id !== playerId
+                );
+                dispatch(updateNextGame(updatedNextGame));
+                await AsyncStorage.setItem(
+                    'NextGame',
+                    JSON.stringify(updateNextGame)
+                );
+            }
+
+            // Remove the player from the players array and update AsyncStorage
             const updatedPlayers = players.filter(
                 (player: Player) => player.id !== playerId
             );
@@ -100,6 +212,7 @@ export const PlayerList: React.FC = () => {
                 JSON.stringify(updatedPlayers)
             );
             dispatch(updatePlayers(updatedPlayers));
+
             setDeletePlayer(null);
             setModalVisible(false);
         } catch (error) {
@@ -142,7 +255,6 @@ export const PlayerList: React.FC = () => {
             );
 
             dispatch(updateNextGame(savedNextGame)); // Dispatch the action to update Redux state
-            console.log({ savedNextGame });
         } catch (error) {
             console.error('Error participating player:', error);
         }
@@ -221,16 +333,36 @@ export const PlayerList: React.FC = () => {
             >
                 <View style={styles(colorPalette).modalContainer}>
                     <View style={styles(colorPalette).modalContent}>
+                        <Text
+                            style={{
+                                color: colorPalette.contrast,
+                                fontWeight: 'bold',
+                                fontSize: 16,
+                                marginBottom: 5
+                            }}
+                        >
+                            {'Name'}
+                        </Text>
                         <TextInput
                             style={styles(colorPalette).input}
                             placeholder="Name"
                             value={editedName}
                             onChangeText={setEditedName}
                         />
+                        <Text
+                            style={{
+                                color: colorPalette.contrast,
+                                fontWeight: 'bold',
+                                fontSize: 16,
+                                marginBottom: 5
+                            }}
+                        >
+                            {'Skill Level (from 1-10)'}
+                        </Text>
                         <Picker
                             style={styles(colorPalette).input}
-                            selectedValue={editedLevel}
-                            onValueChange={setEditedLevel}
+                            selectedValue={editedSkillLevel}
+                            onValueChange={setEditedSkillLevel}
                         >
                             {Array.from({ length: 10 }, (_, index) => (
                                 <Picker.Item
@@ -240,6 +372,39 @@ export const PlayerList: React.FC = () => {
                                 />
                             ))}
                         </Picker>
+                        <Text
+                            style={{
+                                color: colorPalette.contrast,
+                                fontWeight: 'bold',
+                                fontSize: 16,
+                                marginBottom: 5
+                            }}
+                        >
+                            {'Fitness Level (from 1-10)'}
+                        </Text>
+                        <Picker
+                            style={styles(colorPalette).input}
+                            selectedValue={editedFitnessLevel}
+                            onValueChange={setEditedFitnessLevel}
+                        >
+                            {Array.from({ length: 10 }, (_, index) => (
+                                <Picker.Item
+                                    key={index}
+                                    label={String(index + 1)}
+                                    value={index + 1}
+                                />
+                            ))}
+                        </Picker>
+                        <Text
+                            style={{
+                                color: colorPalette.contrast,
+                                fontWeight: 'bold',
+                                fontSize: 16,
+                                marginBottom: 5
+                            }}
+                        >
+                            {'Position'}
+                        </Text>
                         <Picker
                             style={styles(colorPalette).input}
                             selectedValue={editedPosition}
@@ -248,6 +413,7 @@ export const PlayerList: React.FC = () => {
                             <Picker.Item label="DEF" value="DEF" />
                             <Picker.Item label="ATT" value="ATT" />
                         </Picker>
+
                         <View style={styles(colorPalette).modalButtons}>
                             <Pressable
                                 onPress={handleSaveEdit}
@@ -313,9 +479,44 @@ export const PlayerList: React.FC = () => {
                     <Text style={{ color: colorPalette.contrast }}>
                         {item.position}
                     </Text>
-                    <Text style={{ color: colorPalette.contrast }}>
-                        {item.level}
-                    </Text>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            marginTop: 2
+                        }}
+                    >
+                        <View style={{ flexDirection: 'row' }}>
+                            <FontAwesome5.default
+                                name="futbol"
+                                color={colorPalette.contrast}
+                                size={20}
+                            />
+                            <Text
+                                style={{
+                                    color: colorPalette.contrast,
+                                    marginRight: 10,
+                                    marginLeft: 5
+                                }}
+                            >
+                                {item.skillLevel}
+                            </Text>
+                        </View>
+                        <View style={{ flexDirection: 'row' }}>
+                            <FontAwesome5.default
+                                name="running"
+                                color={colorPalette.contrast}
+                                size={20}
+                            />
+                            <Text
+                                style={{
+                                    color: colorPalette.contrast,
+                                    marginLeft: 8
+                                }}
+                            >
+                                {item.fitnessLevel}
+                            </Text>
+                        </View>
+                    </View>
                 </View>
                 <View style={styles(colorPalette).buttonContainer}>
                     <TouchableOpacity
@@ -391,6 +592,22 @@ export const PlayerList: React.FC = () => {
                 />
                 {'   '}Player List
             </Text>
+            {players.length === 0 && (
+                <Text
+                    style={{
+                        backgroundColor: colorPalette.tertiary,
+                        margin: 'auto',
+                        width: '90%',
+                        alignSelf: 'center',
+                        padding: 5,
+                        borderRadius: 2,
+                        textAlign: 'center'
+                    }}
+                >
+                    You have no players, please add some players in the player
+                    creator page
+                </Text>
+            )}
             <FlatList data={players} renderItem={renderPlayer} />
 
             {deletePlayerModal()}
@@ -422,8 +639,9 @@ const styles = (colorPalette: ColorPalette) =>
             // justifyContent: 'space-between',
             paddingHorizontal: 10,
             paddingVertical: 8,
+            borderTopWith: 1,
             borderBottomWidth: 1,
-            borderColor: 'gray',
+            borderColor: colorPalette.contrast,
             backgroundColor: colorPalette.surface,
             minHeight: 60,
             width: '100%'
