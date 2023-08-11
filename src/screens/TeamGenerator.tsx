@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    Pressable,
-    Switch,
-    FlatList
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import useThemePalette from 'src/components/hooks/useThemePalette';
@@ -240,7 +233,25 @@ export const TeamGenerator: React.FC = () => {
                     )}
                 </View>
             </View>
-            <View style={{ display: nextGame.length === 0 ? 'none' : 'flex' }}>
+            <View
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 10,
+                    display: nextGame.length === 0 ? 'none' : 'flex'
+                }}
+            >
+                <Text>Show Team Ratings</Text>
+                <Switch
+                    value={showTeamRatings}
+                    onValueChange={setShowTeamRatings}
+                />
+            </View>
+            <View
+                style={{
+                    display: nextGame.length === 0 ? 'none' : 'flex'
+                }}
+            >
                 <Pressable
                     style={{
                         backgroundColor: colorPalette.contrast,
@@ -280,25 +291,6 @@ export const TeamGenerator: React.FC = () => {
                     </Text>
                 </Pressable>
             </View>
-            <View
-                style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginTop: 10,
-                    display: nextGame.length === 0 ? 'none' : 'flex'
-                }}
-            >
-                <Text>Show Team Ratings</Text>
-                <Switch
-                    value={showTeamRatings}
-                    onValueChange={setShowTeamRatings}
-                />
-            </View>
-            {nextGame.map((player) => (
-                <Text style={styles(colorPalette).baseText} key={player.name}>
-                    {player.name}
-                </Text>
-            ))}
         </SafeAreaView>
     );
 };

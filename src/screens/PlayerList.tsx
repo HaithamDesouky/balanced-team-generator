@@ -20,6 +20,7 @@ import useThemePalette from 'src/components/hooks/useThemePalette';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import * as IoniIcon from 'react-native-vector-icons/Ionicons';
 import * as FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import * as MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export const PlayerList: React.FC = () => {
     const { players, nextGame } = useSelector(
@@ -222,11 +223,11 @@ export const PlayerList: React.FC = () => {
     const getPlayerIcon = (position: string) => {
         switch (position) {
             case 'DEF':
-                return 'shield';
+                return 'shield-lock';
             case 'ATT':
-                return 'rocket-sharp';
+                return 'target';
             default:
-                return 'shield';
+                return 'shield-lock';
         }
     };
 
@@ -460,9 +461,9 @@ export const PlayerList: React.FC = () => {
     const renderPlayer = ({ item }: { item: Player }) => {
         return (
             <View style={styles(colorPalette).playerContainer}>
-                <IoniIcon.default
+                <MaterialCommunityIcons.default
                     name={getPlayerIcon(item.position)}
-                    size={30}
+                    size={35}
                     color={colorPalette.contrast}
                 />
                 <View style={styles(colorPalette).playerDetails}>

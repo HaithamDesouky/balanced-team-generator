@@ -17,6 +17,8 @@ import { updatePlayers } from 'src/state/playerSlice';
 import { ColorPalette, Player } from 'src/helper/types';
 import useThemePalette from 'src/components/hooks/useThemePalette';
 import { Dimensions } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const PlayerCreator = () => {
     const [name, setName] = useState('');
@@ -212,16 +214,32 @@ const PlayerCreator = () => {
                         }}
                     >
                         <>
-                            <Text
-                                style={{
-                                    color: colorPalette.contrast,
-                                    fontWeight: 'bold',
-                                    fontSize: 16,
-                                    marginBottom: 5
-                                }}
-                            >
-                                Position
-                            </Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text
+                                    style={{
+                                        color: colorPalette.contrast,
+                                        fontWeight: 'bold',
+                                        fontSize: 16,
+                                        marginBottom: 5,
+                                        marginRight: 10
+                                    }}
+                                >
+                                    Position
+                                </Text>
+                                <MaterialCommunityIcons
+                                    name={'shield-lock'}
+                                    size={25}
+                                    color={colorPalette.contrast}
+                                />
+
+                                <Text>/</Text>
+                                <MaterialCommunityIcons
+                                    name={'target'}
+                                    size={25}
+                                    color={colorPalette.contrast}
+                                />
+                            </View>
+
                             <Picker
                                 style={styles(colorPalette).input}
                                 selectedValue={position}
@@ -236,16 +254,25 @@ const PlayerCreator = () => {
                                 <Picker.Item label="DEF" value="DEF" />
                                 <Picker.Item label="ATT" value="ATT" />
                             </Picker>
-                            <Text
-                                style={{
-                                    color: colorPalette.contrast,
-                                    fontWeight: 'bold',
-                                    fontSize: 16,
-                                    marginBottom: 5
-                                }}
-                            >
-                                {'Skill Level (from 1-10)'}
-                            </Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text
+                                    style={{
+                                        color: colorPalette.contrast,
+                                        fontWeight: 'bold',
+                                        fontSize: 16,
+                                        marginBottom: 5,
+                                        marginRight: 10
+                                    }}
+                                >
+                                    {'Skill Level (from 1-10)'}{' '}
+                                </Text>
+                                <FontAwesome5.default
+                                    name="futbol"
+                                    color={colorPalette.contrast}
+                                    size={20}
+                                />
+                            </View>
+
                             <Picker
                                 style={styles(colorPalette).input}
                                 selectedValue={skillLevel}
@@ -265,16 +292,27 @@ const PlayerCreator = () => {
                                     />
                                 ))}
                             </Picker>
-                            <Text
-                                style={{
-                                    color: colorPalette.contrast,
-                                    fontWeight: 'bold',
-                                    fontSize: 16,
-                                    marginBottom: 5
-                                }}
-                            >
-                                {'Fitness Level (from 1-10)'}
-                            </Text>
+
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text
+                                    style={{
+                                        color: colorPalette.contrast,
+                                        fontWeight: 'bold',
+                                        fontSize: 16,
+                                        marginBottom: 5,
+                                        marginRight: 10
+                                    }}
+                                >
+                                    {'Fitness Level (from 1-10)'}
+                                </Text>
+
+                                <FontAwesome5.default
+                                    name="running"
+                                    color={colorPalette.contrast}
+                                    size={20}
+                                />
+                            </View>
+
                             <Picker
                                 style={styles(colorPalette).input}
                                 selectedValue={fitnessLevel}

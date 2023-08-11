@@ -6,13 +6,6 @@ export const createFairTeams = (
     const players = [...playersInput];
     players.sort((a, b) => b.skillLevel - a.skillLevel);
 
-    const team1: Player[] = [];
-    const team2: Player[] = [];
-
-    const middleIndex = Math.floor(players.length / 2);
-    const strongerPlayers = players.slice(0, middleIndex);
-    const weakerPlayers = players.slice(middleIndex);
-
     const applyVariation = (value: number, range: number): number => {
         const min = Math.max(1, value - range / 2);
         const max = Math.min(10, value + range / 2);
@@ -21,47 +14,66 @@ export const createFairTeams = (
         return newValue;
     };
 
-    strongerPlayers.forEach((player) => {
-        const team1SkillLevel =
-            calculateTotalLevel(team1) + applyVariation(player.skillLevel, 3);
-        const team2SkillLevel = calculateTotalLevel(team2);
-        const team1FitnessLevel =
-            calculateTotalFitness(team1) +
-            applyVariation(player.fitnessLevel, 10);
-        const team2FitnessLevel = calculateTotalFitness(team2);
+    const tryCreateTeams = (): [Player[], Player[]] => {
+        const team1: Player[] = [];
+        const team2: Player[] = [];
 
-        if (
-            (team1.length <= team2.length ||
-                (team1SkillLevel <= team2SkillLevel + 3 &&
-                    team1FitnessLevel <= team2FitnessLevel + 10)) &&
-            (Math.random() < 0.7 || team1SkillLevel <= team2SkillLevel + 2)
-        ) {
-            team1.push(player);
-        } else {
-            team2.push(player);
-        }
-    });
+        const middleIndex = Math.floor(players.length / 2);
+        const strongerPlayers = players.slice(0, middleIndex);
+        const weakerPlayers = players.slice(middleIndex);
 
-    weakerPlayers.forEach((player) => {
-        const team2SkillLevel =
-            calculateTotalLevel(team2) + applyVariation(player.skillLevel, 3);
-        const team1SkillLevel = calculateTotalLevel(team1);
-        const team2FitnessLevel =
-            calculateTotalFitness(team2) +
-            applyVariation(player.fitnessLevel, 10);
-        const team1FitnessLevel = calculateTotalFitness(team1);
+        strongerPlayers.forEach((player) => {
+            const team1SkillLevel =
+                calculateTotalLevel(team1) +
+                applyVariation(player.skillLevel, 3);
+            const team2SkillLevel = calculateTotalLevel(team2);
+            const team1FitnessLevel =
+                calculateTotalFitness(team1) +
+                applyVariation(player.fitnessLevel, 10);
+            const team2FitnessLevel = calculateTotalFitness(team2);
 
-        if (
-            (team2.length <= team1.length ||
-                (team2SkillLevel <= team1SkillLevel + 3 &&
-                    team2FitnessLevel <= team1FitnessLevel + 10)) &&
-            (Math.random() < 0.7 || team2SkillLevel <= team1SkillLevel + 2)
-        ) {
-            team2.push(player);
-        } else {
-            team1.push(player);
-        }
-    });
+            if (
+                (team1.length <= team2.length ||
+                    (team1SkillLevel <= team2SkillLevel + 3 &&
+                        team1FitnessLevel <= team2FitnessLevel + 10)) &&
+                (Math.random() < 0.7 || team1SkillLevel <= team2SkillLevel + 2)
+            ) {
+                team1.push(player);
+            } else {
+                team2.push(player);
+            }
+        });
+
+        weakerPlayers.forEach((player) => {
+            const team2SkillLevel =
+                calculateTotalLevel(team2) +
+                applyVariation(player.skillLevel, 3);
+            const team1SkillLevel = calculateTotalLevel(team1);
+            const team2FitnessLevel =
+                calculateTotalFitness(team2) +
+                applyVariation(player.fitnessLevel, 10);
+            const team1FitnessLevel = calculateTotalFitness(team1);
+
+            if (
+                (team2.length <= team1.length ||
+                    (team2SkillLevel <= team1SkillLevel + 3 &&
+                        team2FitnessLevel <= team1FitnessLevel + 10)) &&
+                (Math.random() < 0.7 || team2SkillLevel <= team1SkillLevel + 2)
+            ) {
+                team2.push(player);
+            } else {
+                team1.push(player);
+            }
+        });
+
+        return [team1, team2];
+    };
+
+    let team1: Player[];
+    let team2: Player[];
+    do {
+        [team1, team2] = tryCreateTeams();
+    } while (Math.abs(team1.length - team2.length) >= 2);
 
     return [team1, team2];
 };
