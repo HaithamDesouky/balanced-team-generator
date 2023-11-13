@@ -75,13 +75,10 @@ export const TeamGenerator: React.FC = () => {
     const [whiteTeamFitness, setWhiteTeamFitness] = useState<number>(0);
 
     useEffect(() => {
-        // Check if the nextGame array has changed and regenerate teams if so
         setTeams(createFairTeams(nextGame));
-        console.log({ nextGame });
     }, [nextGame]);
 
     useEffect(() => {
-        // Calculate the skill levels of the Color and White teams
         const colorSkill = teams[0].reduce((total, player) => {
             return (total += player.skillLevel);
         }, 0);
@@ -91,7 +88,6 @@ export const TeamGenerator: React.FC = () => {
         );
         setColorTeamSkill(colorSkill);
         setWhiteTeamSkill(whiteSkill);
-        // Calculate the skill levels of the Color and White teams
         const colorFitness = teams[0].reduce((total, player) => {
             return (total += player.fitnessLevel);
         }, 0);
