@@ -9,6 +9,8 @@ import { ColorPalette, Player } from 'src/helper/types';
 import { RootState } from 'src/state/store';
 import { updateNextGame } from 'src/state/playerSlice';
 
+import { useNavigation } from '@react-navigation/native';
+
 const styles = (colorPalette: ColorPalette) =>
     StyleSheet.create({
         baseText: {
@@ -62,6 +64,8 @@ const countPositions = (team: Player[]): Record<string, number> => {
 
 export const TeamGenerator: React.FC = () => {
     const dispatch = useDispatch();
+    const navigation = useNavigation();
+
     const nextGame = useSelector((state: RootState) => state.players.nextGame);
     const [teams, setTeams] = useState<[Player[], Player[]]>(
         createFairTeams(nextGame)
@@ -109,10 +113,10 @@ export const TeamGenerator: React.FC = () => {
         await AsyncStorage.removeItem('NextGame');
     };
 
-    return (
-        <SafeAreaView>
-            <Text style={styles(colorPalette).header}>Team Generator</Text>
-            {nextGame.length === 0 && (
+    if (nextGame.length < 2) {
+        return (
+            <SafeAreaView>
+                <Text style={styles(colorPalette).header}>Team Generator</Text>
                 <Text
                     style={{
                         backgroundColor: colorPalette.tertiary,
@@ -124,7 +128,53 @@ export const TeamGenerator: React.FC = () => {
                         textAlign: 'center'
                     }}
                 >
-                    Go to the player list and select players for the next game.
+                    Go to the player list and select atleast players for the
+                    next game. You need at least 2 players in order to generate
+                    teams.
+                </Text>
+                <Pressable
+                    style={{
+                        backgroundColor: colorPalette.contrast,
+                        width: '100%',
+                        borderRadius: 6,
+                        padding: 10,
+                        marginTop: 24
+                    }}
+                    onPress={handleRegenerateTeams}
+                >
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            color: colorPalette.surface
+                        }}
+                        onPress={() =>
+                            navigation.navigate('Player List' as never)
+                        }
+                    >
+                        Go to Player List Screen
+                    </Text>
+                </Pressable>
+            </SafeAreaView>
+        );
+    }
+
+    return (
+        <SafeAreaView>
+            <Text style={styles(colorPalette).header}>Team Generator</Text>
+            {nextGame.length < 2 && (
+                <Text
+                    style={{
+                        backgroundColor: colorPalette.tertiary,
+                        margin: 'auto',
+                        width: '90%',
+                        alignSelf: 'center',
+                        padding: 5,
+                        borderRadius: 2,
+                        textAlign: 'center'
+                    }}
+                >
+                    Go to the player list and select atleast players for the
+                    next game.
                 </Text>
             )}
 
@@ -206,8 +256,8 @@ export const TeamGenerator: React.FC = () => {
             >
                 <View>
                     <Text>Color Team</Text>
-                    <Text>Skill Rating: {colorTeamSkill}</Text>
-                    <Text>Fitness Rating: {colorTeamFitness}</Text>
+                    <Text>Skill Rating: {Number(colorTeamSkill)}</Text>
+                    <Text>Fitness Rating: {Number(colorTeamFitness)}</Text>
                     {Object.entries(countPositions(teams[0])).map(
                         ([position, count]) => (
                             <Text key={position}>
@@ -218,8 +268,8 @@ export const TeamGenerator: React.FC = () => {
                 </View>
                 <View>
                     <Text>White Team</Text>
-                    <Text>Skill Rating: {whiteTeamSkill}</Text>
-                    <Text>Fitness Rating: {whiteTeamFitness}</Text>
+                    <Text>Skill Rating: {Number(whiteTeamSkill)}</Text>
+                    <Text>Fitness Rating: {Number(whiteTeamFitness)}</Text>
                     {Object.entries(countPositions(teams[1])).map(
                         ([position, count]) => (
                             <Text key={position}>
@@ -234,6 +284,7 @@ export const TeamGenerator: React.FC = () => {
                     flexDirection: 'row',
                     alignItems: 'center',
                     marginTop: 10,
+                    marginBottom: 10,
                     display: nextGame.length === 0 ? 'none' : 'flex'
                 }}
             >
