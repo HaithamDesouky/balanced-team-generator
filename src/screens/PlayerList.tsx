@@ -22,10 +22,27 @@ import * as IoniIcon from 'react-native-vector-icons/Ionicons';
 import * as FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import * as MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+interface SortConfig {
+    key: 'name' | 'skillLevel' | 'isPlaying';
+    ascending: boolean;
+}
+
 export const PlayerList: React.FC = () => {
-    const { players, nextGame } = useSelector(
+    const { players: playersForStore, nextGame } = useSelector(
         (state: RootState) => state.players
     );
+
+    const [players, setPlayers] = useState(playersForStore);
+
+    useEffect(() => {
+        const sortedPlayers = [...playersForStore].sort((a, b) => {
+            if (a.name > b.name) return 1; // Descending order
+            if (a.name < b.name) return -1;
+            return 0;
+        });
+        setPlayers(sortedPlayers);
+    }, [playersForStore]);
+
     const [modalVisible, setModalVisible] = useState(false);
     const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
     const [editedName, setEditedName] = useState('');
@@ -77,7 +94,7 @@ export const PlayerList: React.FC = () => {
             },
             {
                 id: '23232s55adfsadas3',
-                name: 'Fernando',
+                name: 'Fernando Gonzales',
                 skillLevel: 6,
                 position: 'ATT',
                 fitnessLevel: 2
@@ -203,7 +220,6 @@ export const PlayerList: React.FC = () => {
                 );
             }
 
-            // Remove the player from the players array and update AsyncStorage
             const updatedPlayers = players.filter(
                 (player: Player) => player.id !== playerId
             );
@@ -234,10 +250,12 @@ export const PlayerList: React.FC = () => {
     const handlePlayerParticipation = async (player: Player) => {
         try {
             const nextGame = await AsyncStorage.getItem('NextGame');
-            let savedNextGame: Player[] = JSON.parse(nextGame || '[]');
+            let savedNextGame: Player[] = nextGame?.length
+                ? JSON.parse(nextGame || '[]')
+                : [];
 
             // Check if the player already exists in the nextGame array
-            const playerIndex = savedNextGame.findIndex(
+            const playerIndex = savedNextGame?.findIndex(
                 (p) => p.id === player.id
             );
 
@@ -471,7 +489,8 @@ export const PlayerList: React.FC = () => {
                         style={{
                             color: colorPalette.contrast,
                             fontWeight: 'bold',
-                            fontSize: 18
+                            fontSize: 18,
+                            maxWidth: '100%'
                         }}
                     >
                         {item.name}
@@ -491,6 +510,7 @@ export const PlayerList: React.FC = () => {
                                 color={colorPalette.contrast}
                                 size={20}
                             />
+
                             <Text
                                 style={{
                                     color: colorPalette.contrast,
@@ -507,6 +527,7 @@ export const PlayerList: React.FC = () => {
                                 color={colorPalette.contrast}
                                 size={20}
                             />
+
                             <Text
                                 style={{
                                     color: colorPalette.contrast,
@@ -574,6 +595,7 @@ export const PlayerList: React.FC = () => {
                             size={24}
                             color={colorPalette.contrast}
                         />
+
                         <Text>Delete</Text>
                     </TouchableOpacity>
                 </View>
@@ -581,17 +603,100 @@ export const PlayerList: React.FC = () => {
         );
     };
 
+    const sortOptions: {
+        key: 'name' | 'skillLevel' | 'isPlaying';
+        icon: string;
+    }[] = [
+        { key: 'name', icon: 'sort-alpha-up' },
+        { key: 'skillLevel', icon: 'futbol' },
+        { key: 'isPlaying', icon: 'check-circle' }
+    ];
+
+    const [sortConfig, setSortConfig] = useState<SortConfig>({
+        key: 'name',
+        ascending: false
+    });
+
+    const handleSort = (
+        key: 'name' | 'skillLevel' | 'isPlaying',
+        ascending: boolean
+    ) => {
+        const sortedPlayers = [...players].sort((a, b) => {
+            let aValue, bValue;
+
+            if (key === 'name') {
+                aValue = a[key];
+                bValue = b[key];
+            } else if (key === 'skillLevel') {
+                aValue = a[key];
+                bValue = b[key];
+            } else if (key === 'isPlaying') {
+                aValue = nextGame?.some((plyr) => plyr.id === a.id) || false;
+                bValue = nextGame?.some((plyr) => plyr.id === b.id) || false;
+            }
+            if ((aValue ?? '') < (bValue ?? '')) return ascending ? -1 : 1;
+            if ((aValue ?? '') > (bValue ?? '')) return ascending ? 1 : -1;
+
+            return 0;
+        });
+
+        setPlayers(sortedPlayers);
+    };
+
+    const toggleSort = (key: 'name' | 'skillLevel' | 'isPlaying') => {
+        setSortConfig((prev) => {
+            const newAscending = prev.key === key ? !prev.ascending : true;
+            handleSort(key, newAscending);
+            return { key, ascending: newAscending };
+        });
+    };
     return (
         <SafeAreaView style={styles(colorPalette).mainContainer}>
             <Text style={styles(colorPalette).pageTitle}>
-                <Fontisto
-                    name="persons"
-                    size={20}
-                    style={{ paddingRight: 20 }}
-                    // color={colorPalette.contrast}
-                />
-                {'   '}Player List
+                <Fontisto name="persons" size={20} />
+                <Text>{'    '}Player List</Text>
             </Text>
+            <View
+                style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    padding: 10
+                }}
+            >
+                {sortOptions.map(({ key, icon }) => (
+                    <TouchableOpacity
+                        key={key}
+                        onPress={() => toggleSort(key)}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <FontAwesome5.default
+                            name={icon}
+                            size={25}
+                            color={
+                                sortConfig.key === key
+                                    ? colorPalette.tertiary
+                                    : colorPalette.surface
+                            }
+                            style={{ marginRight: 8 }}
+                        />
+
+                        <FontAwesome5.default
+                            name={
+                                sortConfig.ascending
+                                    ? 'long-arrow-alt-up'
+                                    : 'long-arrow-alt-down'
+                            }
+                            size={14}
+                            color={colorPalette.tertiary}
+                            style={{ opacity: sortConfig.key === key ? 1 : 0 }}
+                        />
+                    </TouchableOpacity>
+                ))}
+            </View>
             {players.length === 0 && (
                 <Text
                     style={{
@@ -624,22 +729,25 @@ const styles = (colorPalette: ColorPalette) =>
             height: '100%'
         },
         pageTitle: {
+            display: 'flex',
+            justifyContent: 'center',
+            textAlign: 'center',
             backgroundColor: colorPalette.contrast,
             color: colorPalette.surface,
             fontSize: 18,
             paddingTop: 5,
             paddingLeft: 10,
             paddingBottom: 5,
-            marginBottom: 15,
             fontWeight: 'bold'
         },
+
         playerContainer: {
             flexDirection: 'row',
             alignItems: 'center',
             // justifyContent: 'space-between',
             paddingHorizontal: 10,
             paddingVertical: 8,
-            borderTopWith: 1,
+            borderTopWidth: 1,
             borderBottomWidth: 1,
             borderColor: colorPalette.contrast,
             backgroundColor: colorPalette.surface,
@@ -649,11 +757,13 @@ const styles = (colorPalette: ColorPalette) =>
         playerDetails: {
             display: 'flex',
             flexDirection: 'column',
-            marginLeft: 16
+            marginLeft: 16,
+            maxWidth: '30%'
         },
         buttonContainer: {
             margin: 'auto',
             marginLeft: 'auto',
+            marginRight: 0,
             height: '100%',
             display: 'flex',
             flexDirection: 'row',

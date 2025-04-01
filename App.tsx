@@ -3,9 +3,9 @@ import { TeamGenerator } from 'screens/TeamGenerator';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { PlayerCreator } from 'screens/PlayerCreator';
 import { PlayerList } from 'screens/PlayerList';
+import { Provider } from 'react-redux';
 import * as IoniIcon from 'react-native-vector-icons/Ionicons';
 import * as FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { Provider } from 'react-redux';
 
 import { store } from 'src/state/store';
 import useThemePalette from 'src/components/hooks/useThemePalette';

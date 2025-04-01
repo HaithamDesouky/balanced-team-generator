@@ -186,7 +186,7 @@ const PlayerCreator = () => {
                         Name
                     </Text>
                     <TextInput
-                        ref={(ref) => {
+                        ref={(ref: TextInput) => {
                             localInputRef &&
                                 (localInputRef.current =
                                     (ref as TextInput) || null);
@@ -276,7 +276,7 @@ const PlayerCreator = () => {
                             <Picker
                                 style={styles(colorPalette).input}
                                 selectedValue={skillLevel}
-                                onValueChange={(itemValue) =>
+                                onValueChange={(itemValue: number) =>
                                     setSkillLevel(itemValue)
                                 }
                                 onFocus={() => {
@@ -316,7 +316,7 @@ const PlayerCreator = () => {
                             <Picker
                                 style={styles(colorPalette).input}
                                 selectedValue={fitnessLevel}
-                                onValueChange={(itemValue) =>
+                                onValueChange={(itemValue: number) =>
                                     setFitnessLevel(itemValue)
                                 }
                                 onFocus={() => {
